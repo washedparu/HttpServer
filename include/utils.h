@@ -4,7 +4,7 @@
 #include <cstring>
 
 // that should be the name of the project i think.
-namespace Server
+namespace HttpServer
 {
     bool endsWith(const std::string& str, const std::string& suffix); 
     std::string getMimeType(const std::string& path);

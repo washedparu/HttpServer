@@ -20,7 +20,7 @@ set(SOURCES
 
 
 # adding the executable
-add_executable(server++ ${SOURCES})
+add_executable(HttpServer ${SOURCES})
 
 # include directory
-target_include_directories(server++ PRIVATE include)
+target_include_directories(HttpServer PRIVATE include)

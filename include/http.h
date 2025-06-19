@@ -10,7 +10,7 @@
 #include <fstream>
 #include <sstream>
 
-namespace Server {
+namespace HttpServer {
 
     class Http { 
     public:
