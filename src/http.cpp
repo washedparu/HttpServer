@@ -1,13 +1,13 @@
 #include "http.h"
 
-Server::Http::Http(int PORT) : m_PORT(PORT) {}
+HttpServer::Http::Http(int PORT) : m_PORT(PORT) {}
 
 
-Server::Http::~Http() {
+HttpServer::Http::~Http() {
     std::cout << "Finished!\n";
     close(m_ServerSocket);
 }
-void Server::Http::Init() {
+void HttpServer::Http::Init() {
     m_ServerSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (m_ServerSocket == -1) {
         std::cerr << "Failed to create the socket.\n";
@@ -31,7 +31,7 @@ void Server::Http::Init() {
     std::cout << "Server is running on http://localhost:" << m_PORT << '\n';
 }
 
-void Server::Http::onUpdate() {
+void HttpServer::Http::onUpdate() {
     while (true) {
         socklen_t clientLength = sizeof(m_ClientAddress);
         int clientSocket = accept(m_ServerSocket, (sockaddr*)&m_ClientAddress, &clientLength);

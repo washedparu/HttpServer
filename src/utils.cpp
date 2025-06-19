@@ -1,12 +1,14 @@
 #include "utils.h"
 #include <string>
+#include <sstream>
+#include <cstring>
 
-bool Server::endsWith(const std::string& str, const std::string& suffix) {
+bool HttpServer::endsWith(const std::string& str, const std::string& suffix) {
         return str.size() >= suffix.size() &&
             str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
 }
 
-std::string Server::getClientIPFromHeaders(const std::string& request) {
+std::string HttpServer::getClientIPFromHeaders(const std::string& request) {
     std::istringstream stream(request);
     std::string line;
     while (std::getline(stream, line)) {
@@ -18,7 +20,7 @@ std::string Server::getClientIPFromHeaders(const std::string& request) {
 }
 
 
-std::string Server::getMimeType(const std::string& path) {
+std::string HttpServer::getMimeType(const std::string& path) {
         if (endsWith(path, ".html") || endsWith(path, ".htm")) return "text/html";
         if (endsWith(path, ".css")) return "text/css";
         if (endsWith(path, ".js")) return "application/javascript";
