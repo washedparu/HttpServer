@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My C++ HTTP Server</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        h1 {
+            color: #b92e74;
+            margin-bottom: 1.5rem;
+        }
+
+        .gif-container {
+            margin-bottom: 1.5rem;
+        }
+
+        button {
+            background-color: #b92e74;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #9c255f;
+        }
+    </style>
+</head>
+<body>
+    <h1>Cat gif so cuuuuuuuuuute</h1>
+    <center>
+    <div class="gif-container">
+        <div class="tenor-gif-embed" data-postid="18259408098481512759" data-share-method="host" data-aspect-ratio="0.728916" data-width="25%">
+            <a href="https://tenor.com/view/cat-smile-happy-happy-cat-smile-cat-gif-18259408098481512759">Cat Smile GIF</a>
+            from <a href="https://tenor.com/search/cat-gifs">Cat GIFs</a>
+        </div> 
+        <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
+    </div>
+    </center>
+    <button onclick="playMeow()">Play Meow</button>
+    <audio id="meowSound" src="meow.mp3"></audio>
+
+   <script>
+    function playMeow() {
+        const audio = document.getElementById('meowSound');
+        audio.play().catch(err => console.log("Audio play failed:", err));
+    }
+</script>
+
+</body>
+</html>
