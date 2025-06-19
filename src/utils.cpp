@@ -1,24 +1,37 @@
 #include "utils.h"
-#include <string>
-#include <sstream>
-#include <cstring>
+
 
 bool HttpServer::endsWith(const std::string& str, const std::string& suffix) {
         return str.size() >= suffix.size() &&
             str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
 }
 
-std::string HttpServer::getClientIPFromHeaders(const std::string& request) {
-    std::istringstream stream(request);
-    std::string line;
-    while (std::getline(stream, line)) {
-        if (line.rfind("X-Forwarded-For:", 0) == 0) {
-            return line.substr(strlen("X-Forwarded-For: "));
+
+std::string_view HttpServer::getClientIPFromHeaders(std::string_view request) {
+    size_t start = 0;
+    while (start < request.size()) {
+        size_t end = request.find('\n', start);
+        if (end == std::string_view::npos) {
+            end = request.size(); // last line
         }
+
+        std::string_view line = request.substr(start, end - start);
+
+        if (line.starts_with("X-Forwarded-For:")) {
+            size_t ipStart = line.find_first_not_of(' ', strlen("X-Forwarded-For:"));
+            if (ipStart != std::string_view::npos)
+                return line.substr(ipStart);
+        }
+
+        start = end + 1;
     }
     return "unknown";
 }
 
+std::string HttpServer::getClientIPFromHeaders(const std::string& rawRequest) {
+    std::string_view ipView = getClientIPFromHeaders(std::string_view(rawRequest));
+    return std::string(ipView); 
+}
 
 std::string HttpServer::getMimeType(const std::string& path) {
         if (endsWith(path, ".html") || endsWith(path, ".htm")) return "text/html";

@@ -1,13 +1,19 @@
 #include "http.h"
 
-HttpServer::Http::Http(int PORT) : m_PORT(PORT) {}
+HttpServer::Http* g_HttpInstance = nullptr;
+
+
+HttpServer::Http::Http(int PORT) : m_PORT(PORT), m_ServerSocket(-1), m_ClientSocket(-1), m_IsRunning(true) {}
 
 
 HttpServer::Http::~Http() {
     std::cout << "Finished!\n";
     close(m_ServerSocket);
 }
+
+
 void HttpServer::Http::Init() {
+    g_HttpInstance = this;
     m_ServerSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (m_ServerSocket == -1) {
         std::cerr << "Failed to create the socket.\n";
@@ -21,7 +27,7 @@ void HttpServer::Http::Init() {
 
     int enable = 1;
     setsockopt(m_ServerSocket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable));
-
+    setsockopt(m_ServerSocket, SOL_SOCKET, SO_REUSEPORT, &enable, sizeof(enable));
     if (bind(m_ServerSocket, reinterpret_cast<sockaddr*>(&serverAddress), sizeof(serverAddress)) == -1) {
         std::cerr << "Failed to bind the socket to the address\n";
         return;
@@ -29,17 +35,45 @@ void HttpServer::Http::Init() {
 
     listen(m_ServerSocket, 1);
     std::cout << "Server is running on http://localhost:" << m_PORT << '\n';
+    std::signal(SIGINT, HttpServer::Http::SignalHandler);
 }
 
-void HttpServer::Http::onUpdate() {
-    while (true) {
+
+void HttpServer::Http::Shutdown() {
+    m_IsRunning = false;
+
+    if (m_ServerSocket != -1) {
+        shutdown(m_ServerSocket, SHUT_RDWR);
+        close(m_ServerSocket);
+        m_ServerSocket = -1;
+    }
+}
+
+
+void HttpServer::Http::SignalHandler(int signum) {
+    std::cout << "\nSignal (" << signum << ") received. Shutting down...\n";
+    if(g_HttpInstance) {
+        g_HttpInstance->Shutdown();
+    }
+}
+
+
+
+void HttpServer::Http::OnUpdate() {
+    while (m_IsRunning) {
         socklen_t clientLength = sizeof(m_ClientAddress);
         int clientSocket = accept(m_ServerSocket, (sockaddr*)&m_ClientAddress, &clientLength);
         if (clientSocket == -1) {
+            if(errno == EINTR) { 
+                std::cout << "Interrupted accept() by a signal\n";
+                break;
+            } 
             std::cerr << "Failed to accept connection: " << strerror(errno) << '\n';
             continue;
         }
 
+      
+    
         char clientIp[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &(m_ClientAddress.sin_addr), clientIp, INET_ADDRSTRLEN);
 
@@ -114,7 +148,7 @@ void HttpServer::Http::onUpdate() {
         if (write(clientSocket, httpResponse.c_str(), httpResponse.size()) == -1) {
             std::cerr << "Failed to write to client socket\n";
         }
-
+        
         close(clientSocket);
         indexHtml.close();
     }

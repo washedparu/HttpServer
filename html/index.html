@@ -2,39 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My C++ HTTP Server</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f4;
-            padding: 2rem;
-            text-align: center;
-        }
-
-        h1 {
-            color: #b92e74;
-            margin-bottom: 1.5rem;
-        }
-
-        .gif-container {
-            margin-bottom: 1.5rem;
-        }
-
-        button {
-            background-color: #b92e74;
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #9c255f;
-        }
-    </style>
+    <title>C++ HTTP Server</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h1>Cat gif so cuuuuuuuuuute</h1>
@@ -50,12 +19,7 @@
     <button onclick="playMeow()">Play Meow</button>
     <audio id="meowSound" src="meow.mp3"></audio>
 
-   <script>
-    function playMeow() {
-        const audio = document.getElementById('meowSound');
-        audio.play().catch(err => console.log("Audio play failed:", err));
-    }
-</script>
+<script src="main.js"></script>
 
 </body>
 </html>
