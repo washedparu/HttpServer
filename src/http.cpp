@@ -62,8 +62,8 @@ void HttpServer::Http::SignalHandler(int signum) {
 void HttpServer::Http::OnUpdate() {
     while (m_IsRunning) {
         socklen_t clientLength = sizeof(m_ClientAddress);
-        int clientSocket = accept(m_ServerSocket, (sockaddr*)&m_ClientAddress, &clientLength);
-        if (clientSocket == -1) {
+        m_ClientSocket = accept(m_ServerSocket, (sockaddr*)&m_ClientAddress, &clientLength);
+        if (m_ClientSocket == -1) {
             if(errno == EINTR) { 
                 std::cout << "Interrupted accept() by a signal\n";
                 break;
@@ -74,21 +74,25 @@ void HttpServer::Http::OnUpdate() {
 
       
     
-        char clientIp[INET_ADDRSTRLEN];
-        inet_ntop(AF_INET, &(m_ClientAddress.sin_addr), clientIp, INET_ADDRSTRLEN);
+        char rawIp[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, &(m_ClientAddress.sin_addr), rawIp, INET_ADDRSTRLEN);
 
         char requestBuffer[4096] = {0};
-        ssize_t bytesRead = read(clientSocket, requestBuffer, sizeof(requestBuffer) - 1);
+        ssize_t bytesRead = read(m_ClientSocket, requestBuffer, sizeof(requestBuffer) - 1);
         if (bytesRead > 0) {
-            requestBuffer[bytesRead] = '\0'; // Null-terminate BEFORE using as string
+            requestBuffer[bytesRead] = '\0'; 
 
-            std::cout << "Client IP (socket): " << clientIp << '\n';
+            std::string_view clientIP = getClientIPFromHeaders(std::string(requestBuffer, bytesRead));
+            if(clientIP.empty()) {
+                std::cerr << "Failed to get client IP\n";
+            } 
+            else {
+                std::cout << "Client IP: " << clientIP << '\n';
+            }
 
-            std::string requestStr(requestBuffer, bytesRead);
-            std::cout << "Client IP (x-forwarded-for): " << getClientIPFromHeaders(requestStr) << '\n';
         } else {
             std::cerr << "Failed to read client request or connection closed\n";
-            close(clientSocket);
+            close(m_ClientSocket);
             continue;
         }
 
@@ -102,8 +106,8 @@ void HttpServer::Http::OnUpdate() {
             // Only GET supported
             std::string response = "HTTP/1.1 405 Method Not Allowed\r\n"
                                    "Content-Length: 0\r\n\r\n";
-            write(clientSocket, response.c_str(), response.size());
-            close(clientSocket);
+            write(m_ClientSocket, response.c_str(), response.size());
+            close(m_ClientSocket);
             continue;
         }
 
@@ -116,8 +120,8 @@ void HttpServer::Http::OnUpdate() {
             std::string forbidden = "HTTP/1.1 403 Forbidden\r\n"
                                     "Content-Length: 9\r\n\r\n"
                                     "Forbidden";
-            write(clientSocket, forbidden.c_str(), forbidden.size());
-            close(clientSocket);
+            write(m_ClientSocket, forbidden.c_str(), forbidden.size());
+            close(m_ClientSocket);
             continue;
         }
 
@@ -129,8 +133,8 @@ void HttpServer::Http::OnUpdate() {
                                    "Content-Type: text/plain\r\n"
                                    "Content-Length: 13\r\n\r\n"
                                    "404 Not Found";
-            write(clientSocket, notFound.c_str(), notFound.size());
-            close(clientSocket);
+            write(m_ClientSocket, notFound.c_str(), notFound.size());
+            close(m_ClientSocket);
             continue;
         }
 
@@ -145,11 +149,11 @@ void HttpServer::Http::OnUpdate() {
                              "\r\n";
 
         std::string httpResponse = header + body;
-        if (write(clientSocket, httpResponse.c_str(), httpResponse.size()) == -1) {
+        if (write(m_ClientSocket, httpResponse.c_str(), httpResponse.size()) == -1) {
             std::cerr << "Failed to write to client socket\n";
         }
         
-        close(clientSocket);
+        close(m_ClientSocket);
         indexHtml.close();
     }
 }

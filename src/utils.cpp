@@ -25,7 +25,7 @@ std::string_view HttpServer::getClientIPFromHeaders(std::string_view request) {
 
         start = end + 1;
     }
-    return "unknown";
+    return {};
 }
 
 std::string HttpServer::getClientIPFromHeaders(const std::string& rawRequest) {
