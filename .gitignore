@@ -1,2 +1,4 @@
-# ignoring the build directory
+# ignoring the build and .vscode directories
 build
+.vscode
+
