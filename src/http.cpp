@@ -84,7 +84,7 @@ void HttpServer::Http::OnUpdate() {
 
             std::string_view clientIP = getClientIPFromHeaders(std::string(requestBuffer, bytesRead));
             if(clientIP.empty()) {
-                std::cerr << "Failed to get client IP\n";
+                std::cout << "Client IP(raw): " << rawIp << '\n';
             } 
             else {
                 std::cout << "Client IP: " << clientIP << '\n';

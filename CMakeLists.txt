@@ -16,6 +16,7 @@ set(SOURCES
     src/main.cpp
     src/utils.cpp
     src/http.cpp
+    src/logger.cpp
 )
 
 
