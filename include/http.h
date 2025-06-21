@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <atomic>
 #include <sstream>
 
 #include <cstring>
@@ -32,7 +31,7 @@ namespace HttpServer {
         static void SignalHandler(int signum);
 
     private:
-        std::atomic<bool> m_IsRunning; 
+        bool m_IsRunning; 
 
         const int m_PORT;
 
